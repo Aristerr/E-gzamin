@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Home.scss";
 import Header from "./Header";
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,6 +8,8 @@ import TestField from "./TestField";
 import TestTemplateField from "./TestTemplateField";
 import useDesignates from "../hooks/useDesignates";
 import DesignateField from "./DesignateField";
+import useTestResults from "../hooks/useTestResults";
+import TestResultField from "./TestResultField";
 
 const useStyles = makeStyles((theme) => ({
   mainContent: {
@@ -27,36 +29,37 @@ const useStyles = makeStyles((theme) => ({
 
 function Home() {
   const styles = useStyles();
-  const { testTemplates } = useTestTemplate();
-  const { ownedDesignates, designates } = useDesignates();
-  
+  const { testTemplates, refetch } = useTestTemplate();
+  const { ownedDesignates, designates, refetchAll } = useDesignates();
+  const { testResults } = useTestResults();
+  useEffect(() => {
+    refetch();
+    refetchAll();
+  }, []);
   return (
     <div className="Home-content">
-      <Header content="TEST TEMPLATES" variant="h3" />
+      {testTemplates.length > 0 && (
+        <Header content="TEST TEMPLATES" variant="h3" />
+      )}
       {testTemplates.map((testTemplate, index) => (
         <TestTemplateField testTemplate={testTemplate} key={index} />
       ))}
-      <Header content="DESIGNATED" variant="h3" />
+      {ownedDesignates.length > 0 && (
+        <Header content="DESIGNATED" variant="h3" />
+      )}
       {ownedDesignates.map((designate, index) => (
         <DesignateField key={index} designate={designate} />
       ))}
-      <Header content="TODO" variant="h3" />
+      {designates.length > 0 && <Header content="TODO" variant="h3" />}
       {designates.map((designate, index) => (
         <TestField key={index} designate={designate} />
       ))}
-      <Header content="COMPLETED" variant="h3" />
-      {/*test results not owned */}
-      {/* <TestField
-        subject="Demonologia"
-        owner="Seweryn"
-        pub_date="11.12.1499"
-        result="123/134"
-        result_positive
-        attempts={2}
-        available_attempts={3}
-        deadline="30.02.2021"
-        time={15}
-      /> */}
+      {testResults.length > 0 && (
+        <Header content="COMPLETED" variant="h3" />
+      )}
+      {testResults.map((testResult, index) => (
+          <TestResultField key={index} testResult={testResult} />
+      ))}
     </div>
   );
 }
